@@ -79,14 +79,11 @@ class TicTacToeClient(game.GameClient):
         pass
 
     def _nextmove(self, state):
-        #if state._state['visible'][4] is None:
-            #return str(4)
-
+        if state._state['visible'][4] is None:
+            return str(4)
         x = randint(0, 8)
-
         while state._state['visible'][x] is not None:
             x = randint(0, 8)
-
         if x == 0:
             return str(0)
         if x > 0:
