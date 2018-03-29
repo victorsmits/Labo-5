@@ -4,6 +4,7 @@
 # Version: March 28, 2016
 
 import argparse
+from random import randint
 import socket
 import sys
 
@@ -78,8 +79,18 @@ class TicTacToeClient(game.GameClient):
         pass
 
     def _nextmove(self, state):
-        return str(state._state['visible'].index(None))
+        #if state._state['visible'][4] is None:
+            #return str(4)
 
+        x = randint(0, 8)
+
+        while state._state['visible'][x] is not None:
+            x = randint(0, 8)
+
+        if x == 0:
+            return str(0)
+        if x > 0:
+            return str(x)
 
 if __name__ == '__main__':
     # Create the top-level parser
