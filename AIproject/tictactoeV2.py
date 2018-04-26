@@ -7,6 +7,7 @@ import argparse
 from random import randint
 import socket
 import sys
+import simpleia
 
 from lib import game
 
@@ -89,22 +90,27 @@ class TicTacToeClient(game.GameClient):
         if x > 0:
             return str(x)
 
+
 if __name__ == '__main__':
+
     # Create the top-level parser
     parser = argparse.ArgumentParser(description='Tic-tac-toe game')
     subparsers = parser.add_subparsers(description='server client', help='Tic-tac-toe game components',
                                        dest='component')
+
     # Create the parser for the 'server' subcommand
     server_parser = subparsers.add_parser('server', help='launch a server')
     server_parser.add_argument('--host', help='hostname (default: localhost)', default='localhost')
     server_parser.add_argument('--port', help='port to listen on (default: 5000)', default=5000)
     server_parser.add_argument('--verbose', action='store_true')
+
     # Create the parser for the 'client' subcommand
     client_parser = subparsers.add_parser('client', help='launch a client')
     client_parser.add_argument('name', help='name of the player')
     client_parser.add_argument('--host', help='hostname of the server (default: localhost)', default='127.0.0.1')
     client_parser.add_argument('--port', help='port of the server (default: 5000)', default=5000)
     client_parser.add_argument('--verbose', action='store_true')
+
     # Parse the arguments of sys.args
     args = parser.parse_args()
     if args.component == 'server':
