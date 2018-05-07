@@ -7,6 +7,7 @@ import copy
 import json
 import socket
 import sys
+import time
 
 DEFAULT_BUFFER_SIZE = 1024
 SECTION_WIDTH = 60
@@ -19,12 +20,14 @@ def _printsection(title):
 
 class InvalidMoveException(Exception):
     '''Exception representing an invalid move.'''
+
     def __init__(self, message):
         super().__init__(message)
 
 
 class GameState(metaclass=ABCMeta):
     '''Abstract class representing a generic game state.'''
+
     def __init__(self, visible, hidden=None):
         self._state = {'visible': visible, 'hidden': hidden}
 
@@ -65,6 +68,7 @@ class GameState(metaclass=ABCMeta):
 
 class GameServer(metaclass=ABCMeta):
     '''Abstract class representing a generic game server.'''
+
     def __init__(self, name, nbplayers, initialstate, verbose=False):
         self.__name = name
         self.__nbplayers = nbplayers
@@ -169,19 +173,25 @@ class GameServer(metaclass=ABCMeta):
             player.sendall('PLAY {}'.format(self.state).encode())
             try:
                 move = player.recv(self._state.__class__.buffersize()).decode()
+
                 if self.__verbose:
                     print('   Move:', move)
                 self.applymove(move)
                 self.__turns += 1
                 self.__currentplayer = (self.__currentplayer + 1) % self.nbplayers
+
             except InvalidMoveException as e:
                 if self.__verbose:
                     print('Invalid move:', e)
                 player.sendall('ERROR {}'.format(e).encode())
+
             if self.__verbose:
                 print('   State:')
                 self._state.prettyprint()
-            winner = self._state.winner()
+
+
+        winner = self._state.winner()
+
         if self.__verbose:
             _printsection('Game finished')
         # Notify players about won/lost status
@@ -207,6 +217,7 @@ class GameServer(metaclass=ABCMeta):
 
 class GameClient(metaclass=ABCMeta):
     '''Abstract class representing a game client'''
+
     def __init__(self, server, stateclass, verbose=False):
         self.__stateclass = stateclass
         self.__verbose = verbose
@@ -236,7 +247,7 @@ class GameClient(metaclass=ABCMeta):
                     _printsection('Game started')
                     print("   Player's number: {}".format(self._playernb))
             elif command == 'PLAY':
-                state = self.__stateclass.parse(data[data.index(' ')+1:])
+                state = self.__stateclass.parse(data[data.index(' ') + 1:])
                 if self.__verbose:
                     print("\n=> Player's turn to play")
                     print('   State:')
@@ -245,6 +256,7 @@ class GameClient(metaclass=ABCMeta):
                 if self.__verbose:
                     print('   Move:', move)
                 server.sendall(move.encode())
+
             elif command in ('WON', 'LOST', 'END'):
                 running = False
                 if self.__verbose:
@@ -261,6 +273,7 @@ class GameClient(metaclass=ABCMeta):
                 if self.__verbose:
                     print('Specific data received:', data)
                 self._handle(data)
+
 
     @abstractmethod
     def _handle(self, command):
